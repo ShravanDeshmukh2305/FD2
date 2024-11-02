@@ -59,11 +59,30 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port: 8082
+  port: 8084
 
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        web: DEBUG
+
+
+# application.yml
+
+# Logging configuration
 logging:
   level:
-    org:
-      springframework:
-        web: DEBUG
+    root: INFO
+    org.springframework: WARN
+    com.example.FD.Aggregator: DEBUG  # Enable DEBUG logging for your package
+
+  file:
+    name: logs/application.log
+
+# Log output settings
+logback:
+  configuration-file: classpath:logback-spring.xml
+
+
 
