@@ -14,20 +14,18 @@ import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "usersotp") // Specify table name
+@Table(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "ref_no", unique = true, nullable = false)
+    private String refNo; // refNo as primary key
 
     private String mobile;
-    private String refNo;
     private String email;
     private String firstName;
     private String lastName;
 
-    @Column(name = "date_of_birth") // For better column name mapping
-    private LocalDate dob;
-
-    // Getters and setters (optional if using Lombok)
+    @Column(name = "date_of_birth")
+    private LocalDate dob; // User's date of birth
 }
