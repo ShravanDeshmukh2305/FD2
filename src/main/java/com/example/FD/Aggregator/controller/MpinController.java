@@ -1,5 +1,7 @@
 package com.example.FD.Aggregator.controller;
 
+import com.example.FD.Aggregator.dto.CreateMpinRequestDTO;
+import com.example.FD.Aggregator.dto.CreateMpinResponseDTO;
 import com.example.FD.Aggregator.dto.MpinDto;
 import com.example.FD.Aggregator.entity.Mpin;
 import com.example.FD.Aggregator.exceptions.ResourceNotFoundException;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 
 
 @RestController
@@ -18,15 +21,16 @@ public class MpinController {
     private MpinService mpinService;
 
     @PostMapping
-    public ResponseEntity<Mpin> createMpin(@RequestBody MpinDto mpinDto) {
-        Mpin createdMpin = mpinService.createMpin(mpinDto);
-        return ResponseEntity.ok(createdMpin);
+    public ResponseEntity<CreateMpinResponseDTO> createMpin(@RequestBody CreateMpinRequestDTO mpinDto) {
+        CreateMpinResponseDTO response = mpinService.createMpin(mpinDto);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Mpin> getMpinById(@PathVariable Long id) {
-        Mpin mpin = mpinService.getMpinById(id).orElseThrow(() -> new ResourceNotFoundException("MPIN not found"));
-        return ResponseEntity.ok(mpin);
+    @GetMapping("/user/{refNo}")
+    public ResponseEntity<Mpin> getMpinByUserRefNo(@PathVariable String refNo) {
+        Optional<Mpin> mpin = mpinService.getMpinByUserRefNo(refNo);
+        return mpin.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")

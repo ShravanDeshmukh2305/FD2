@@ -14,44 +14,53 @@ public class MobileRegistrationController {
 
     @PostMapping("/register")
     public RegisterMobileResponseDTO registerMobile(@RequestBody RegisterMobileRequestDTO requestDTO) {
-        String uuid = mobileRegistrationService.generateOTP(requestDTO.getMobile());
-        RegisterMobileResponseDTO response = new RegisterMobileResponseDTO();
-        response.setMessage("Registration successful");
-        response.setUuid(uuid);
-        return response;
+        try {
+            String uuid = mobileRegistrationService.generateOTP(requestDTO.getMobile());
+
+
+            RegisterMobileResponseDTO.DataDTO dataDTO = new RegisterMobileResponseDTO.DataDTO(uuid);
+            RegisterMobileResponseDTO.SuccessData successData = new RegisterMobileResponseDTO.SuccessData("200", "Registration successful", dataDTO);
+
+            return new RegisterMobileResponseDTO(successData, null);
+        } catch (Exception e) {
+
+            return new RegisterMobileResponseDTO(null, "Failed to generate OTP.");
+        }
     }
+
 
     @PostMapping("/verify")
     public VerifyOTPResponseDTO verifyOTP(@RequestBody VerifyOTPRequestDTO requestDTO) {
-        VerifyOTPResponseDTO response = mobileRegistrationService.verifyOTP(requestDTO.getOtp()); // Only pass the OTP
+        VerifyOTPResponseDTO response = mobileRegistrationService.verifyOTP(requestDTO.getOtp(), requestDTO.getRefNo());
         if (response == null) {
-            // Handle the case where verification failed
             response = new VerifyOTPResponseDTO();
-            response.setSuccess(null); // No success response
-            response.setError("Verification failed"); // Set an appropriate error message
+            response.setSuccess(null);
+            response.setError("Verification failed");
         }
         return response;
     }
 
-    // Controller
+
     @PostMapping("/user-details")
     public UserDetailsResponseDTO saveUserDetails(@RequestBody UserDetailsRequestDTO requestDTO) {
         return mobileRegistrationService.saveUserDetails(requestDTO);
     }
 
+
     @PutMapping("/user-details-update")
-    public UserDetailsResponseDTO updateUserProfile(@RequestBody UpdateUserProfileRequestDTO requestDTO) {
+    public UpdateUserProfileResponseDTO updateUserProfile(@RequestBody UpdateUserProfileRequestDTO requestDTO) {
         return mobileRegistrationService.updateUserProfile(requestDTO);
     }
 
-    @GetMapping("/user-by-email")
-    public GetUserResponseDTO getUserByEmail(@RequestParam String email) {
-        return mobileRegistrationService.getUserByEmail(email);
+
+    @PostMapping("/user-by-email")
+    public GetUserResponseDTO getUserByEmail(@RequestBody GetUserByEmailRequestDTO requestDTO) {
+        return mobileRegistrationService.getUserByEmail(requestDTO.getEmail());
     }
 
-    @GetMapping("/user-by-mobile")
-    public GetUserResponseDTO getUserByMobile(@RequestParam String mobile) {
-        return mobileRegistrationService.getUserByMobile(mobile);
+    @PostMapping("/user-by-mobile")
+    public GetUserResponseDTO getUserByMobile(@RequestBody GetUserByMobileRequestDTO requestDTO) {
+        return mobileRegistrationService.getUserByMobile(requestDTO.getMobile());
     }
 
 }

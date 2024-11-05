@@ -1,14 +1,10 @@
 package com.example.FD.Aggregator.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.Data;
 
 import java.time.LocalDate;
 
@@ -18,7 +14,7 @@ import java.time.LocalDate;
 public class User {
 
     @Id
-    @Column(name = "ref_no", unique = true, nullable = false)
+    @Column(name = "ref_id", unique = true, nullable = false)
     private String refNo; // refNo as primary key
 
     private String mobile;

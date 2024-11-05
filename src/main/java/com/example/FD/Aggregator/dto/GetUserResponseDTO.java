@@ -1,34 +1,42 @@
 package com.example.FD.Aggregator.dto;
 
-
 import lombok.Data;
 
 @Data
 public class GetUserResponseDTO {
-    private String message;
-    private boolean success;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private String mobile;
+    private SuccessData success;
+    private Object error;
 
-    // Constructor to initialize all fields
-    public GetUserResponseDTO(String message, boolean success, String email, String firstName, String lastName, String mobile) {
-        this.message = message;
-        this.success = success;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.mobile = mobile;
+    @Data
+    public static class SuccessData {
+        private String successCode;
+        private String successMsg;
+        private UserData data;
+
+        public SuccessData(String successCode, String successMsg, UserData data) {
+            this.successCode = successCode;
+            this.successMsg = successMsg;
+            this.data = data;
+        }
     }
 
-    // Constructor for only message and success
-    public GetUserResponseDTO(String message, boolean success) {
-        this.message = message;
-        this.success = success;
+    @Data
+    public static class UserData {
+        private String email;
+        private String firstName;
+        private String lastName;
+        private String mobile;
+
+        public UserData(String email, String firstName, String lastName, String mobile) {
+            this.email = email;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.mobile = mobile;
+        }
     }
 
-    // Default constructor (optional, for deserialization)
-    public GetUserResponseDTO() {
+    public GetUserResponseDTO(SuccessData success, Object error) {
+        this.success = success;
+        this.error = error;
     }
 }

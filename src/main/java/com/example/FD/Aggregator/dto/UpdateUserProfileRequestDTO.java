@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class UpdateUserProfileRequestDTO {
-    private String refId; // Reference ID to identify the user
-    private String email; // New email
-    private String firstName; // New first name
-    private String lastName; // New last name
+    private String refId;
+    private String email;
+    private String firstName;
+    private String lastName;
 }

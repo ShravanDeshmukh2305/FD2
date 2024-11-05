@@ -3,9 +3,14 @@ package com.example.FD.Aggregator.dto;
 import lombok.Data;
 
 @Data
-public class UserDetailsResponseDTO {
+public class UpdateUserProfileResponseDTO {
     private SuccessData success;
     private Object error;
+
+    public UpdateUserProfileResponseDTO(SuccessData success, Object error) {
+        this.success = success;
+        this.error = error;
+    }
 
     @Data
     public static class SuccessData {
@@ -26,20 +31,12 @@ public class UserDetailsResponseDTO {
         private String email;
         private String firstName;
         private String lastName;
-        private String mobile;
 
-        public DataDTO(String refId, String email, String firstName, String lastName, String mobile) {
+        public DataDTO(String refId, String email, String firstName, String lastName) {
             this.refId = refId;
             this.email = email;
             this.firstName = firstName;
             this.lastName = lastName;
-            this.mobile = mobile;
         }
     }
-
-    public UserDetailsResponseDTO(SuccessData success, Object error) {
-        this.success = success;
-        this.error = error;
-    }
-
 }

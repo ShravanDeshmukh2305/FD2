@@ -1,11 +1,9 @@
 package com.example.FD.Aggregator.dto;
 
-
-
 import lombok.Data;
 
 @Data
 public class VerifyOTPRequestDTO {
-    private String otp; // Only the OTP is needed
+    private String otp;    // OTP code
+    private String refNo;  // Reference number
 }
-

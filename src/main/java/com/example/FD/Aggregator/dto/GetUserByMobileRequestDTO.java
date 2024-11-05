@@ -3,6 +3,6 @@ package com.example.FD.Aggregator.dto;
 import lombok.Data;
 
 @Data
-public class RegisterMobileRequestDTO {
+public class GetUserByMobileRequestDTO {
     private String mobile;
 }
