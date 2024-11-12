@@ -1,20 +1,10 @@
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/FD_Aggregator
-#    username: postgres
-#    password: 4444
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#  redis:
-#    host: localhost
-#    port: 6379
-#server:
-#  port: 8080
+
 
 
 
 spring:
+  kafka:
+    bootstrap-servers: "localhost:29092"
   application:
     name: FD-Aggregator
 
@@ -40,6 +30,8 @@ spring:
 app:
   fakeotp: true       # This should be under a custom 'app' property to avoid conflicts
   otp: 123456         # Default OTP value to use if fakeotp is enabled
+
+
 
 server:
   port: 8084

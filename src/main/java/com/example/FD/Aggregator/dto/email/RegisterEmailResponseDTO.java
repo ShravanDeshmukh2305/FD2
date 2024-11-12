@@ -1,10 +1,10 @@
-package com.example.FD.Aggregator.dto;
+package com.example.FD.Aggregator.dto.email;
 
 import lombok.Data;
 
 @Data
-public class RegisterMobileResponseDTO {
-//    private SuccessData success;
+public class RegisterEmailResponseDTO {
+    private SuccessData success;
     private Object error;
 
     @Data
@@ -22,11 +22,15 @@ public class RegisterMobileResponseDTO {
 
     @Data
     public static class DataDTO {
-        private String uuid;
+        private String refNo;
 
-        public DataDTO(String uuid) {
-            this.uuid = uuid;
+        public DataDTO(String refNo) {
+            this.refNo = refNo;
         }
     }
 
+    public RegisterEmailResponseDTO(SuccessData success, Object error) {
+        this.success = success;
+        this.error = error;
+    }
 }

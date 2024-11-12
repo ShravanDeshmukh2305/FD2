@@ -2,9 +2,13 @@ package com.example.FD.Aggregator.controller;
 
 import com.example.FD.Aggregator.dto.*;
 import com.example.FD.Aggregator.service.MobileRegistrationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/mobile")
 public class MobileRegistrationController {
@@ -13,31 +17,27 @@ public class MobileRegistrationController {
     private MobileRegistrationService mobileRegistrationService;
 
     @PostMapping("/register")
-    public RegisterMobileResponseDTO registerMobile(@RequestBody RegisterMobileRequestDTO requestDTO) {
+    public ResponseEntity<String> registerMobile(@RequestBody RegisterMobileRequestDTO requestDTO) {
         try {
-            String uuid = mobileRegistrationService.generateOTP(requestDTO.getMobile());
+             mobileRegistrationService.generateOTP(requestDTO.getMobile());
 
-
-            RegisterMobileResponseDTO.DataDTO dataDTO = new RegisterMobileResponseDTO.DataDTO(uuid);
-            RegisterMobileResponseDTO.SuccessData successData = new RegisterMobileResponseDTO.SuccessData("200", "Registration successful", dataDTO);
-
-            return new RegisterMobileResponseDTO(successData, null);
+            return new ResponseEntity<>("Mobile Registration successful", HttpStatus.OK);
         } catch (Exception e) {
 
-            return new RegisterMobileResponseDTO(null, "Failed to generate OTP.");
+            log.error("Failed to generate OTP.", e);
+
+            return new ResponseEntity<>("Failed to generate OTP", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
     @PostMapping("/verify")
-    public VerifyOTPResponseDTO verifyOTP(@RequestBody VerifyOTPRequestDTO requestDTO) {
-        VerifyOTPResponseDTO response = mobileRegistrationService.verifyOTP(requestDTO.getOtp(), requestDTO.getRefNo());
+    public ResponseEntity<SuccessResponseDTO> verifyOTP(@RequestBody VerifyOTPRequestDTO requestDTO) {
+        SuccessResponseDTO response = mobileRegistrationService.verifyOTP(requestDTO.getOtp(), requestDTO.getRefNo());
         if (response == null) {
-            response = new VerifyOTPResponseDTO();
-            response.setSuccess(null);
-            response.setError("Verification failed");
+            return new ResponseEntity<>(null,  HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response;
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

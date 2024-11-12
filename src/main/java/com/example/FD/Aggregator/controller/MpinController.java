@@ -17,14 +17,27 @@ import java.util.Optional;
 @RequestMapping("/api/mpin")
 public class MpinController {
 
-    @Autowired
-    private MpinService mpinService;
+    private final MpinService mpinService;
+
+    public MpinController(MpinService mpinService) {
+        this.mpinService = mpinService;
+    }
 
     @PostMapping
-    public ResponseEntity<CreateMpinResponseDTO> createMpin(@RequestBody CreateMpinRequestDTO mpinDto) {
-        CreateMpinResponseDTO response = mpinService.createMpin(mpinDto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CreateMpinResponseDTO> createMpin(
+            @RequestBody CreateMpinRequestDTO mpinDto,
+            @RequestHeader("userRefId") String userRefId) {
+
+        try {
+            CreateMpinResponseDTO response = mpinService.createMpin(mpinDto, userRefId);
+            return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(404).body(new CreateMpinResponseDTO(null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new CreateMpinResponseDTO(null, "An error occurred"));
+        }
     }
+
 
     @GetMapping("/user/{refNo}")
     public ResponseEntity<Mpin> getMpinByUserRefNo(@PathVariable String refNo) {

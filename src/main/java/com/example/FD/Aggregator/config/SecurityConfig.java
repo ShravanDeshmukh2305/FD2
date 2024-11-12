@@ -45,6 +45,8 @@ public class SecurityConfig {
                         "/api/mobile/user-details-update",
                         "/api/mobile/user-by-email",
                         "/api/mobile/user-by-mobile",
+                       "/api/email/generate",
+                        "/api/email/verify",
                         "/api/mpin"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -54,6 +56,8 @@ public class SecurityConfig {
                                 "/api/mobile/user-details-update",
                                 "/api/mobile/user-by-email",
                                 "/api/mobile/user-by-mobile",
+                               "/api/email/generate",
+                                "/api/email/verify",
                                 "/api/mpin").permitAll() // Allow registration and verification without authentication
                         .anyRequest().authenticated() // Require authentication for any other request
                 )

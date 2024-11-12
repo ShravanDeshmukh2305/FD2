@@ -4,6 +4,7 @@ import com.example.FD.Aggregator.config.AppConfig;
 import com.example.FD.Aggregator.dto.*;
 import com.example.FD.Aggregator.entity.User;
 import com.example.FD.Aggregator.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Optional;
-import java.util.Set;
+
+import java.time.Duration;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class MobileRegistrationService {
 
@@ -29,7 +31,7 @@ public class MobileRegistrationService {
 
     private final ObjectMapper objectMapper = new ObjectMapper(); // For JSON handling
 
-    public String generateOTP(String mobile) {
+    public void generateOTP(String mobile) {
         String uuid = UUID.randomUUID().toString();
         String otp = appConfig.isFakeotp() ? "123456" : generateActualOTP();
 
@@ -43,10 +45,14 @@ public class MobileRegistrationService {
             // Store in Redis with UUID as the key
             redisTemplate.opsForValue().set(uuid, redisValue);
 
-            return "OTP Generated Successfully ";
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "Failed to generate OTP.";
+            redisTemplate.expire(uuid, Duration.ofMinutes(60));
+
+            log.info("OTP Generated Successfully");
+
+
+        } catch (Exception e) {
+
+            log.error("Failed to generate OTP.", e);
         }
     }
 
@@ -58,7 +64,7 @@ public class MobileRegistrationService {
 
 
     @Transactional
-    public VerifyOTPResponseDTO verifyOTP(String otp, String refNo) {
+    public SuccessResponseDTO verifyOTP(String otp, String refNo) {
         String storedValue = (String) redisTemplate.opsForValue().get(refNo);
 
         if (storedValue != null) {
@@ -73,74 +79,67 @@ public class MobileRegistrationService {
                     redisTemplate.opsForValue().set(refNo, objectMapper.writeValueAsString(otpDetails)); // Update in Redis
 
                     SuccessResponseDTO successResponse = new SuccessResponseDTO();
-                    successResponse.setSuccessCode("200");
-                    successResponse.setSuccessMsg("Verification successful");
 
-                    SuccessResponseDTO.DataDTO data = new SuccessResponseDTO.DataDTO();
-                    data.setRefId(refNo); // Use refNo as refId
-                    successResponse.setData(data);
 
-                    VerifyOTPResponseDTO response = new VerifyOTPResponseDTO();
-                    response.setSuccess(successResponse);
-                    response.setError(null);
+                    successResponse.setRefId(refNo); // Use refNo as refId
 
-                    return response; // Return verification success response
+                    return successResponse; // Return verification success response
                 }
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                log.error("failed during verification of mobile otp");
+
             }
         }
 
-        // Verification failed response
-        VerifyOTPResponseDTO failureResponse = new VerifyOTPResponseDTO();
-        failureResponse.setSuccess(null);
-        failureResponse.setError("Verification failed");
-        return failureResponse;
+        return null;
+
     }
+
 
 
     @Transactional
     public UserDetailsResponseDTO saveUserDetails(UserDetailsRequestDTO requestDTO) {
-        // Retrieve mobile number and verification status from Redis using refId
         OTPDetailsDTO otpDetails = getOTPDetailsFromRedis(requestDTO.getRefId());
 
-        // Handle the case where OTP details are not found
         if (otpDetails == null) {
             return new UserDetailsResponseDTO(null, "Mobile number not found or OTP not verified for refId");
         }
 
-        // Check if the user is verified before saving details
         if (!otpDetails.isVerified()) {
             return new UserDetailsResponseDTO(null, "User is not verified, cannot save details");
         }
 
-        // Create a new User and set the details
         User user = new User();
         user.setMobile(otpDetails.getMobile());
         user.setEmail(requestDTO.getEmail());
         user.setFirstName(requestDTO.getFirstName());
         user.setLastName(requestDTO.getLastName());
         user.setDob(requestDTO.getDob());
-        user.setRefNo(requestDTO.getRefId()); // Store refId in the user entity
+        user.setRefNo(requestDTO.getRefId());
 
         // Save the new user entity to the database
-        userRepository.save(user);
+        user = userRepository.save(user);
 
-        // Construct the data part of the response for success
+        // Fetch the user again to ensure createdDate and updatedDate are set
+        user = userRepository.findByRefNo(user.getRefNo()).orElse(user);
+
+        // Prepare response
         UserDetailsResponseDTO.DataDTO dataDTO = new UserDetailsResponseDTO.DataDTO(
-                requestDTO.getRefId(),
-                requestDTO.getEmail(),
-                requestDTO.getFirstName(),
-                requestDTO.getLastName(),
-                otpDetails.getMobile()
+                user.getRefNo(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getMobile(),
+                user.getCreatedDate(),
+                user.getUpdatedDate()
         );
 
-        // Create success response data
         UserDetailsResponseDTO.SuccessData successData = new UserDetailsResponseDTO.SuccessData("200", "User details saved successfully", dataDTO);
-
-        // Return the success response
         return new UserDetailsResponseDTO(successData, null);
     }
+
+
+
 
 
 
