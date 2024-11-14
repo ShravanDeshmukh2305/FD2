@@ -1,0 +1,37 @@
+
+
+
+
+spring:
+  kafka:
+    bootstrap-servers: "localhost:29092"
+  application:
+    name: FD-Aggregator
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/FD_Aggregator
+    username: postgres
+    password: 4444
+
+  redis:
+    host: localhost
+    port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  fakeotp: true       # This should be under a custom 'app' property to avoid conflicts
+  otp: 123456         # Default OTP value to use if fakeotp is enabled
+
+
+
+server:
+  port: 8084
